@@ -1,7 +1,7 @@
 {
-  "namespace/BlockName": {
+  "nio/WeMoInsight": {
     "language": "Python",
-    "version": "0.0.1",
-    "reference": "github.com/<organization>/<repo>@v0.0.1"
+    "url": "git://github.com/tyoungNIO/wemo.git",
+    "version": "0.1.0"
   }
 }
