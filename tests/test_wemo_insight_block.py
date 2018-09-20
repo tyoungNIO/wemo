@@ -9,8 +9,8 @@ class TestExample(NIOBlockTestCase):
 
     @patch(WeMoInsight.__module__ + '.pywemo')
     def test_process_signals(self, mock_pywemo):
-        """ Params are read from an Insight device for every signal processed
-        and signals are enriched with the contents."""
+        """ Params are read from an Insight device for every signal list 
+        processed and each signal is enriched with the contents."""
         mock_insight = MagicMock()
         mock_insight.insight_params = {'pi': 3.14}
         mock_pywemo.discover_devices.return_value = [mock_insight]
@@ -18,10 +18,13 @@ class TestExample(NIOBlockTestCase):
         self.configure_block(blk, {'enrich': {'exclude_existing': False}})
         blk.start()
         self.assertEqual(mock_pywemo.discover_devices.call_count, 1)
-        blk.process_signals([Signal({'et': 'cetera'})])
+        blk.process_signals([Signal({'foo': 'bar'}), Signal({'foo': 'baz'})])
         self.assertEqual(mock_insight.update_insight_params.call_count, 1)
         blk.stop()
-        self.assert_num_signals_notified(1)
+        self.assert_num_signals_notified(2)
         self.assertDictEqual(
             self.last_notified[DEFAULT_TERMINAL][0].to_dict(),
-            {'pi': 3.14, 'et': 'cetera'})
+            {'pi': 3.14, 'foo': 'bar'})
+        self.assertDictEqual(
+            self.last_notified[DEFAULT_TERMINAL][1].to_dict(),
+            {'pi': 3.14, 'foo': 'baz'})

@@ -22,9 +22,9 @@ class WeMoInsight(Block, EnrichSignals):
         super().start()
 
     def process_signals(self, signals):
+        self.device.update_insight_params()
         outgoing_signals = []
         for signal in signals:
-            self.device.update_insight_params()
             new_signal = self.get_output_signal(self.device.insight_params,
                                                 signal)
             outgoing_signals.append(new_signal)
