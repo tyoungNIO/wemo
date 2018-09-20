@@ -2,6 +2,7 @@ import pywemo
 from nio import Block, Signal
 from nio.block.mixins.enrich.enrich_signals import EnrichSignals
 from nio.properties import VersionProperty
+from nio.util.threading import spawn
 
 
 class WeMoInsight(Block, EnrichSignals):
@@ -14,9 +15,7 @@ class WeMoInsight(Block, EnrichSignals):
 
     def configure(self, context):
         super().configure(context)
-        devices = pywemo.discover_devices()
-        self.logger.debug('Found {} WeMo devices'.format(len(devices)))
-        self.device = devices[0]
+        self._discover()
 
     def start(self):
         super().start()
@@ -29,3 +28,12 @@ class WeMoInsight(Block, EnrichSignals):
                                                 signal)
             outgoing_signals.append(new_signal)
         self.notify_signals(outgoing_signals)
+
+    def _discover(self):
+        devices = []
+        while not devices:
+            self.logger.debug('Discovering WeMo devices on network...')
+            devices = pywemo.discover_devices()
+        self.logger.debug('Found {} WeMo devices'.format(len(devices)))
+        self.device=devices[0]
+        self.logger.debug('Selected device {}'.format(self.device.mac))
