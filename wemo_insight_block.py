@@ -12,16 +12,28 @@ class WeMoInsight(Block, EnrichSignals):
     def __init__(self):
         super().__init__()
         self.device = None
+        self._thread = None
 
     def configure(self, context):
         super().configure(context)
-        self._discover()
+        self._thread = spawn(self._discover)
 
     def start(self):
         super().start()
 
     def process_signals(self, signals):
-        self.device.update_insight_params()
+        if not self.device:
+            self.logger.error('No WeMo device connected, dropping {} signals'\
+                .format(len(signals)))
+            return
+        try:
+            self.logger.debug('Reading values from device...'.format(self.device))
+            self.device.update_insight_params()
+        except AttributeError:
+            # raised when pywemo has given up retrying
+            self.logger.error('Unable to connect to WeMo, dropping {} signals'\
+                .format(len(signals)))
+            return
         outgoing_signals = []
         for signal in signals:
             new_signal = self.get_output_signal(self.device.insight_params,
@@ -36,4 +48,5 @@ class WeMoInsight(Block, EnrichSignals):
             devices = pywemo.discover_devices()
         self.logger.debug('Found {} WeMo devices'.format(len(devices)))
         self.device=devices[0]
-        self.logger.debug('Selected device {}'.format(self.device.mac))
+        self.logger.debug('Selected device {} with MAC {}'.format(
+            self.device.name, self.device.mac))
