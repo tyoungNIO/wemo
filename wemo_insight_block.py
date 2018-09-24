@@ -30,8 +30,8 @@ class WeMoInsight(Block, EnrichSignals):
                 self._thread = spawn(self._discover)
                 return
         try:
-            self.logger.debug('Reading values from {}...'\
-                .format(self.device.name))
+            self.logger.debug('Reading values from {} {}...'\
+                .format(self.device.name, self.device.mac))
             self.device.update_insight_params()
         except AttributeError:
             # raised when pywemo has given up retrying
