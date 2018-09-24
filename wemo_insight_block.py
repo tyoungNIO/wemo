@@ -20,9 +20,6 @@ class WeMoInsight(Block, EnrichSignals):
         super().configure(context)
         self._thread = spawn(self._discover)
 
-    def start(self):
-        super().start()
-
     def process_signals(self, signals):
         if not self.device:
             self.logger.error('No WeMo device connected, dropping {} signals'\
