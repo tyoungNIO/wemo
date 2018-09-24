@@ -48,6 +48,7 @@ class WeMoInsight(Block, EnrichSignals):
             self.logger.error('Unable to connect to WeMo, dropping {} signals'\
                 .format(len(signals)))
             self.device = None
+            self._updating = False
             return
         outgoing_signals = []
         for signal in signals:
