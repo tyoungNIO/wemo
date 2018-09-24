@@ -35,6 +35,8 @@ class WeMoInsight(Block, EnrichSignals):
             self.device.update_insight_params()
         except AttributeError:
             # raised when pywemo has given up retrying
+            self.logger.error('Unable to connect to WeMo, dropping {} signals'\
+                .format(len(signals)))
             self.device = None
             return
         outgoing_signals = []
