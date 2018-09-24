@@ -15,6 +15,7 @@ class WeMoInsight(Block, EnrichSignals):
         self.device = None
         self._thread = None
         self._discovering = False
+        self._updating = False
 
     def configure(self, context):
         super().configure(context)
@@ -32,7 +33,14 @@ class WeMoInsight(Block, EnrichSignals):
         try:
             self.logger.debug('Reading values from {} {}...'\
                 .format(self.device.name, self.device.mac))
-            self.device.update_insight_params()
+            if not self._updating:
+                self.device.update_insight_params()
+            else:
+                # drop signals to preserve order of signal lists
+                self.logger.error(
+                    'Another thread is waiting for param update, '\
+                    'dropping {} signals'.format(len(signals)))
+                return
         except AttributeError:
             # raised when pywemo has given up retrying
             self.logger.error('Unable to connect to WeMo, dropping {} signals'\

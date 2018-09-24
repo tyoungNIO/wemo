@@ -62,3 +62,19 @@ class TestExample(NIOBlockTestCase):
         self.assertEqual(mock_insight.update_insight_params.call_count, 1)
         blk.stop()
         self.assert_num_signals_notified(1)
+
+    @patch(WeMoInsight.__module__ + '.pywemo')
+    def test_single_update_caller(self, mock_pywemo):
+        """ Only one thread should have an active/retrying call to update."""
+        mock_insight = MagicMock()
+        mock_insight.insight_params = {'pi': 3.14}
+        mock_pywemo.discover_devices.return_value = [mock_insight]
+        blk = WeMoInsight()
+        self.configure_block(blk, {})
+        blk.start()
+        # another call to process_signals is still waiting for params
+        blk._updating = True
+        blk.process_signals([Signal()])
+        # these signals are dropped
+        self.assertEqual(mock_insight.update_insight_params.call_count, 0)
+        blk.stop()
