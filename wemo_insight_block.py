@@ -34,7 +34,9 @@ class WeMoInsight(Block, EnrichSignals):
             self.logger.debug('Reading values from {} {}...'\
                 .format(self.device.name, self.device.mac))
             if not self._updating:
+                self._updating = True
                 self.device.update_insight_params()
+                self._updating = False
             else:
                 # drop signals to preserve order of signal lists
                 self.logger.error(
