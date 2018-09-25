@@ -13,7 +13,7 @@ class WeMoInsight(Block, EnrichSignals):
 
     device_mac = StringProperty(title='MAC Address of Target Device',
                                 allow_none=True)
-    version = VersionProperty('0.1.0')
+    version = VersionProperty("0.1.0")
 
     def __init__(self):
         super().__init__()
