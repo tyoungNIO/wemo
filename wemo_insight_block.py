@@ -1,13 +1,18 @@
 from requests.exceptions import ConnectionError
-import pywemo
+from pywemo import discover_devices
+from pywemo.ouimeaux_device.insight import Insight
 from nio import Block, Signal
 from nio.block.mixins.enrich.enrich_signals import EnrichSignals
-from nio.properties import VersionProperty
+from nio.command import command
+from nio.properties import StringProperty, VersionProperty
 from nio.util.threading import spawn
 
 
+@command('rediscover')
 class WeMoInsight(Block, EnrichSignals):
 
+    device_mac = StringProperty(title='MAC Address of Target Device',
+                                allow_none=True)
     version = VersionProperty('0.1.0')
 
     def __init__(self):
@@ -30,25 +35,26 @@ class WeMoInsight(Block, EnrichSignals):
             else:
                 self._thread = spawn(self._discover)
                 return
-        try:
+        if not self._updating:
             self.logger.debug('Reading values from {} {}...'\
                 .format(self.device.name, self.device.mac))
-            if not self._updating:
-                self._updating = True
+            self._updating = True
+            try:
                 self.device.update_insight_params()
                 self._updating = False
-            else:
-                # drop signals to preserve order of signal lists
+            except AttributeError:
+                # raised when update_insight_params has given up retrying
                 self.logger.error(
-                    'Another thread is waiting for param update, '\
+                    'Unable to connect to WeMo, '\
                     'dropping {} signals'.format(len(signals)))
+                self.device = None
+                self._updating = False
                 return
-        except AttributeError:
-            # raised when pywemo has given up retrying
-            self.logger.error('Unable to connect to WeMo, dropping {} signals'\
-                .format(len(signals)))
-            self.device = None
-            self._updating = False
+        else:
+            # drop new signals while retrying
+            self.logger.error(
+                'Another thread is waiting for param update, '\
+                'dropping {} signals'.format(len(signals)))
             return
         outgoing_signals = []
         for signal in signals:
@@ -57,19 +63,31 @@ class WeMoInsight(Block, EnrichSignals):
             outgoing_signals.append(new_signal)
         self.notify_signals(outgoing_signals)
 
+    def rediscover(self):
+        self.device = None
+        self._discover()
+
     def _discover(self):
         self._discovering = True
-        devices = []
-        while not devices:
+        insight_devices = []
+        while not insight_devices:
             self.logger.debug('Discovering WeMo devices on network...')
             try:
-                devices = pywemo.discover_devices()
+                devices = discover_devices()
             except ConnectionError:
                 self.logger.error('Error discovering devices, aborting')
                 self._discovering = False
                 return
-        self.logger.debug('Found {} WeMo devices'.format(len(devices)))
-        self.device=devices[0]
-        self.logger.debug('Selected device {} with MAC {}'.format(
-            self.device.name, self.device.mac))
+            for device in devices:
+                if isinstance(device, Insight):
+                    if self.device_mac():
+                        if device.mac == self.device_mac():
+                            insight_devices.append(device)
+                    else:
+                        insight_devices.append(device)
+        self.logger.debug('Found {} WeMo Insight devices'\
+            .format(len(insight_devices)))
+        self.device = insight_devices[0]
+        self.logger.debug('Selected device \"{}\" with MAC {}'\
+            .format(self.device.name, self.device.mac))
         self._discovering = False

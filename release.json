@@ -1,7 +1,7 @@
 {
   "nio/WeMoInsight": {
     "language": "Python",
-    "url": "git://github.com/tyoungNIO/wemo.git",
+    "url": "git://github.com/nio-blocks/wemo.git",
     "version": "0.1.0"
   }
 }
