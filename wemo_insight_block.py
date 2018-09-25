@@ -30,25 +30,26 @@ class WeMoInsight(Block, EnrichSignals):
             else:
                 self._thread = spawn(self._discover)
                 return
-        try:
+        if not self._updating:
             self.logger.debug('Reading values from {} {}...'\
                 .format(self.device.name, self.device.mac))
-            if not self._updating:
-                self._updating = True
+            self._updating = True
+            try:
                 self.device.update_insight_params()
                 self._updating = False
-            else:
-                # drop signals to preserve order of signal lists
+            except AttributeError:
+                # raised when pywemo has given up retrying
                 self.logger.error(
-                    'Another thread is waiting for param update, '\
+                    'Unable to connect to WeMo, '\
                     'dropping {} signals'.format(len(signals)))
+                self.device = None
+                self._updating = False
                 return
-        except AttributeError:
-            # raised when pywemo has given up retrying
-            self.logger.error('Unable to connect to WeMo, dropping {} signals'\
-                .format(len(signals)))
-            self.device = None
-            self._updating = False
+        else:
+            # drop new signals while retrying
+            self.logger.error(
+                'Another thread is waiting for param update, '\
+                'dropping {} signals'.format(len(signals)))
             return
         outgoing_signals = []
         for signal in signals:
@@ -69,7 +70,7 @@ class WeMoInsight(Block, EnrichSignals):
                 self._discovering = False
                 return
         self.logger.debug('Found {} WeMo devices'.format(len(devices)))
-        self.device=devices[0]
+        self.device = devices[0]
         self.logger.debug('Selected device {} with MAC {}'.format(
             self.device.name, self.device.mac))
         self._discovering = False
