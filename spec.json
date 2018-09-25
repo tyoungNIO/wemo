@@ -1,11 +1,17 @@
 {
   "nio/WeMoInsight": {
     "version": "0.1.0",
-    "description": "Read data from a WeMo Insight device. NOTE: The first device discovered is used.",
+    "description": "Read data from a WeMo Insight device. The first device discovered is used if no `device_mac` is specified.\n\nNOTE: Devices may change their port numbers or otherwise need to be re-discovered on the network, which can take a minute, so during device discovery incoming signals are dropped. Signals will also be dropped if another thread is still waiting on results from the target device, which can take a while as the update retries (5 retries, not configurable). Discovery is threaded and begins after `configure`. If discovery fails for any reason, following calls to `process_signals` will restart the discovery process.",
     "categories": [
       "Hardware"
     ],
     "properties": {
+      "device_mac": {
+        "title": "MAC Address of Target Device",
+        "type": "StringType",
+        "description": "Optinally specify the MAC address of the target WeMo.",
+        "default": null
+      },
       "enrich": {
         "title": "Signal Enrichment",
         "type": "ObjectType",
@@ -23,9 +29,14 @@
     },
     "outputs": {
       "default": {
-        "description": "The same list of signals, enriched with the device parameters."
+        "description": "The same list of signals, enriched with the values read from the device."
       }
     },
-    "commands": {}
+    "commands": {
+      "rediscover": {
+        "params": {},
+        "description": "Forget the current device (if applicable) and begin device discovery."
+      }
+    }
   }
 }
