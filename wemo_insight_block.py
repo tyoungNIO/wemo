@@ -70,7 +70,7 @@ class WeMoInsight(Block, EnrichSignals):
             status += ', dropped device \"{}\" with MAC {}'\
                 .format(self.device.name, self.device.mac)
         self.device = None
-        self._discover()
+        self._thread = spawn(self._discover)
         return {'status': status}
 
     def _discover(self):
