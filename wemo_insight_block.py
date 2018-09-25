@@ -64,13 +64,17 @@ class WeMoInsight(Block, EnrichSignals):
         self.notify_signals(outgoing_signals)
 
     def rediscover(self):
-        if self.device:
-            status = 'OK, dropped device \"{}\" with MAC {}'\
-                .format(self.device.name, self.device.mac)
+        self.logger.info('Rediscover command received!')
+        if self._discovering:
+            status = 'Discovery already in progress'
         else:
             status = 'OK'
-        self.device = None
-        self._discover()
+            if self.device:
+                status += ', dropped device \"{}\" with MAC {}'\
+                    .format(self.device.name, self.device.mac)
+            self.device = None
+            self._thread = spawn(self._discover)
+        self.logger.info(status)
         return {'status': status}
 
     def _discover(self):
