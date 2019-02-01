@@ -42,8 +42,8 @@ class WeMoInsight(Block, EnrichSignals):
             try:
                 self.device.update_insight_params()
                 self._updating = False
-            except AttributeError:
-                # raised when update_insight_params has given up retrying
+            except:
+                # raises when update_insight_params has given up retrying
                 self.logger.error(
                     'Unable to connect to WeMo, '\
                     'dropping {} signals'.format(len(signals)))
