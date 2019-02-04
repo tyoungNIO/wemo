@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-from pywemo import discover_devices
-=======
->>>>>>> origin/switch_support
 from pywemo.ouimeaux_device.insight import Insight
 from nio.block.mixins.enrich.enrich_signals import EnrichSignals
 from nio.properties import VersionProperty
