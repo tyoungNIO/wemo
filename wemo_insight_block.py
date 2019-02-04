@@ -1,4 +1,3 @@
-from requests.exceptions import ConnectionError
 from pywemo import discover_devices
 from pywemo.ouimeaux_device.insight import Insight
 from nio import Block, Signal
@@ -84,7 +83,7 @@ class WeMoInsight(Block, EnrichSignals):
             self.logger.debug('Discovering WeMo devices on network...')
             try:
                 devices = discover_devices()
-            except ConnectionError:
+            except:
                 self.logger.error('Error discovering devices, aborting')
                 self._discovering = False
                 return
