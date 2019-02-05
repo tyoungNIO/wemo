@@ -98,8 +98,8 @@ class WeMoBase(Block, EnrichSignals):
                     self.device = device
                     break
             else:
-                # If we didn't find a device wait a bit before trying again
-                sleep(0.1)
+                self.logger.debug('No valid devices, trying again in 1 second')
+                sleep(1)
         self.logger.info('Selected device \"{}\" with MAC {}'.format(
             self.device.name, self.device.mac))
         self._discovering = False
