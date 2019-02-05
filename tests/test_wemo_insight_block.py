@@ -20,9 +20,6 @@ class EventWeMoDiscovery(WeMoInsight):
         self.event.set()
 
 
-# @patch(pywemo.ouimeaux_device.Device.__module__ + '.requests')
-# @patch(pywemo.ouimeaux_device.Device.__module__ + '.deviceParser')
-# @patch('pywemo.ouimeaux_device.insight.Insight', autospec=True)
 @patch(WeMoBase.__module__ + '.discover_devices')
 class TestWeMoInsight(NIOBlockTestCase):
 
