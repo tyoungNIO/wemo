@@ -1,42 +1,18 @@
 {
   "nio/WeMoInsight": {
-    "version": "0.1.0",
-    "description": "Read data from a WeMo Insight device. The first device discovered is used if no `device_mac` is specified.\n\nNOTE: Devices may change their port numbers or otherwise need to be re-discovered on the network, which can take a minute, so during device discovery incoming signals are dropped. Signals will also be dropped if another thread is still waiting on results from the target device, which can take a while as the update retries (5 retries, not configurable). Discovery is threaded and begins after `configure`. If discovery fails for any reason, following calls to `process_signals` will restart the discovery process.",
+    "description": "Read data from a WeMo Insight device. The first device discovered is used if no `device_mac` is specified.",
+    "from_python": "wemo_insight_block.WeMoInsight",
+    "from_readme": "docs/wemo_insight.md",
     "categories": [
       "Hardware"
-    ],
-    "properties": {
-      "device_mac": {
-        "title": "MAC Address of Target Device",
-        "type": "StringType",
-        "description": "Optinally specify the MAC address of the target WeMo.",
-        "default": null
-      },
-      "enrich": {
-        "title": "Signal Enrichment",
-        "type": "ObjectType",
-        "description": "Signal Enrichment\n  - *exclude_existing*: If checked (true), the attributes of the incoming signal will be excluded from the outgoing signal. If unchecked (false), the attributes of the incoming signal will be included in the outgoing signal.\n  - *enrich_field*: (hidden) The attribute on the signal to store the results from this block. If this is empty, the results will be merged onto the incoming signal. This is the default operation. Having this field allows a block to 'save' the results of an operation to a single field on an incoming signal and notify the enriched signal.",
-        "default": {
-          "enrich_field": "",
-          "exclude_existing": true
-        }
-      }
-    },
-    "inputs": {
-      "default": {
-        "description": "Any list of signals."
-      }
-    },
-    "outputs": {
-      "default": {
-        "description": "The same list of signals, enriched with the values read from the device."
-      }
-    },
-    "commands": {
-      "rediscover": {
-        "params": {},
-        "description": "Forget the current device (if applicable) and begin device discovery."
-      }
-    }
+    ]
+  },
+  "nio/WeMoSwitch": {
+    "description": "Toggle the on/off status of a WeMo Switch",
+    "from_python": "wemo_switch_block.WeMoSwitch",
+    "from_readme": "docs/wemo_switch.md",
+    "categories": [
+      "Hardware"
+    ]
   }
 }

@@ -2,6 +2,11 @@
   "nio/WeMoInsight": {
     "language": "Python",
     "url": "git://github.com/nio-blocks/wemo.git",
-    "version": "0.1.0"
+    "from_python": "wemo_insight_block.WeMoInsight"
+  },
+  "nio/WeMoSwitch": {
+    "language": "Python",
+    "url": "git://github.com/nio-blocks/wemo.git",
+    "from_python": "wemo_switch_block.WeMoSwitch"
   }
 }
